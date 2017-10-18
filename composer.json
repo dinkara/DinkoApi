@@ -45,13 +45,14 @@
     "extra":{
         "laravel": {
             "providers": [
-                { "0" : "Dinkara\\RepoBuilder\\RepositoryBuilderServiceProvider"},
-                { "1" : "Tymon\\JWTAuth\\Providers\\JWTAuthServiceProvider"}
+                "Dinkara\\RepoBuilder\\RepositoryBuilderServiceProvider",
+                "Dinkara\\DinkoApi\\DinkoApiServiceProvider",
+                "Tymon\\JWTAuth\\Providers\\JWTAuthServiceProvider"
             ],
-            "aliases":[
-                {"JWTAuth" : "Tymon\\JWTAuth\\Facades\\JWTAuth"},
-                {"JWTFactory" : "Tymon\\JWTAuth\\Facades\\JWTFactory"}
-            ]
+            "aliases": {
+                "JWTAuth" : "Tymon\\JWTAuth\\Facades\\JWTAuth",
+                "JWTFactory": "Tymon\\JWTAuth\\Facades\\JWTAuth"
+            }
         }
     }
 }
