@@ -26,7 +26,7 @@
         "illuminate/routing": "^5.1",
         "guzzlehttp/guzzle": "~6",
         "dinkara/repobuilder": "^0.2.1",
-        "tymon/jwt-auth": "dev-develop"
+        "tymon/jwt-auth": "^0.5.*"
     },
     "require-dev": {
         "phpunit/phpunit" : ">=5.4.3",
@@ -40,6 +40,18 @@
     "autoload-dev": {
         "psr-4": {
             "Dinkara\\DinkoApi\\": "tests"
+        }
+    },
+    "extra":{
+        "laravel": {
+            "providers": [
+                "Dinkara\\RepoBuilder\\RepositoryBuilderServiceProvider",
+                "Tymon\\JWTAuth\\Providers\\JWTAuthServiceProvider"
+            ],
+            "aliases": {
+                "JWTAuth" : "Tymon\\JWTAuth\\Facades\\JWTAuth",
+                "Debugbar": "Barryvdh\\Debugbar\\Facade"
+            }
         }
     }
 }
