@@ -10,9 +10,8 @@ namespace Dinkara\DinkoApi\Traits;
 
 trait ApiModel{
       
-    protected $displayable = [];
-    
     public function getDisplayable() {
-        return $this->displayable;
+        return isset($this->displayable) ? $this->displayable : [];
     }
+    
 }

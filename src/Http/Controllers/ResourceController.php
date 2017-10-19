@@ -22,7 +22,7 @@ class ResourceController extends ApiController
      */
     public function index()
     {   
-        return ApiResponse::respondWithPagination($this->repo->paginateAll(), new $this->transformer);
+        return ApiResponse::Pagination($this->repo->paginateAll(), new $this->transformer);
     }
 
     /**
@@ -32,7 +32,7 @@ class ResourceController extends ApiController
      */
     public function create()
     {
-        return ApiResponse::respondWithError();
+        return ApiResponse::NotFound();
     }
 
     /**
@@ -53,10 +53,10 @@ class ResourceController extends ApiController
                 $arr[$value] = eval('return $item->getModel()->'.$value.';');
             }
 
-            return ApiResponse::respondWithItem($item->getModel(), new $this->transformer);
+            return ApiResponse::Item($item->getModel(), new $this->transformer);
         }
         else{
-            return ApiResponse::errorItemNotFound(class_basename($this->repo->getModel()));
+            return ApiResponse::ItemNotFound($this->repo->getModel());
         }
         
     }
@@ -70,10 +70,10 @@ class ResourceController extends ApiController
     public function edit($id)
     {  
         if($item = $this->repo->find($id)){
-            return ApiResponse::respondWithItem($item->getModel(), new $this->transformer);
+            return ApiResponse::Item($item->getModel(), new $this->transformer);
         }
         else{
-            return ApiResponse::errorItemNotFound(class_basename($this->repo->getModel()));
+            return ApiResponse::ItemNotFound($this->repo->getModel());
         }
     }
 
@@ -87,10 +87,10 @@ class ResourceController extends ApiController
     {
         if($item = $this->repo->find($id)){
             $item->delete($id);
-            return ApiResponse::successfullyDeleted(class_basename($this->repo->getModel()));
+            return ApiResponse::ItemDeleted($this->repo->getModel());
         }
         else{
-            return ApiResponse::errorItemNotFound(class_basename($this->repo->getModel()));
+            return ApiResponse::ItemNotFound($this->repo->getModel());
         }
         
     }

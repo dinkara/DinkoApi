@@ -15,11 +15,7 @@ use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Manager;
-/**
- * Description of ApiResponse
- *
- * @author Dinkic
- */
+use Symfony\Component\HttpFoundation\Response;
 /**
  * Description of ApiResponse
  *
@@ -28,12 +24,6 @@ use League\Fractal\Manager;
 class ApiResponse {
     
     protected $statusCode = 200;
-
-    const CODE_WRONG_ARGS = 1;
-    const CODE_NOT_FOUND = 2;
-    const CODE_INTERNAL_ERROR = 3;
-    const CODE_UNAUTHORIZED = 4;
-    const CODE_FORBIDDEN = 5;
 
     protected $fractal;
 
@@ -77,138 +67,55 @@ class ApiResponse {
         return $this;
     }
     
+    
     /**
-     * Returns object transformed over specific transformer
-     * @param type $item
-     * @param type $callback
-     * @return type
+     * Generates a Response with a 422 HTTP header and a given message.
+     * @return Response
      */
-    public function respondWithItem($item, $callback){
-        $resource = new Item($item, $callback, "data");
-
-        $rootScope = $this->fractal()->createData($resource);
-
-        return $rootScope->toArray();
-    }
-
-    /**
-     * Returns collection of objects transformed over specific transformer
-     * @param type $collection
-     * @param type $callback
-     * @return type
-     */
-    public function respondWithCollection($collection, $callback){
-        $resource = new Collection($collection, $callback, "data");
-
-        $rootScope = $this->fractal()->createData($resource);
-
-        return $rootScope->toArray();
-    }
-
-    /**
-     * Returns paginate object with a specific number of objects transformed over specific transformer, also provide redirect urls for next or previous page
-     * @param Paginator $paginator
-     * @param type $callback
-     * @return type
-     */
-    public function respondWithPagination(Paginator $paginator, $callback){
-        $queryParams = array_diff_key($_GET, array_flip(['page']));
-        $paginator->appends($queryParams);
-
-        $resource = new Collection($paginator, $callback, "data");
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-
-        $rootScope = $this->fractal()->createData($resource);
-
-        return $rootScope->toArray();
-    }
-
-    /**
-     * Returns custom success message otherwise default message
-     * @param type $message
-     * @param type $statusCode
-     * @return type
-     */
-    public function respondWithSuccess($message = 'Ok', $statusCode = 200){
-        return $this->setStatusCode($statusCode)
-            ->respondWithArray(['success' => true, 'message' => $message]);
+    public function UnprocessableEntity($errors){
+        return $this->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->error($errors, Response::$statusTexts[Response::HTTP_UNPROCESSABLE_ENTITY]);
     }
     
     /**
-     * Returns custom success message for creating new item
+     * Generates a Response with a 404 HTTP header and a given message.
      * @param type $item
-     * @param type $statusCode
-     * @return type
+     * @return Response
      */
-    public function successfullyCreated($item = 'Item', $statusCode = 201){
-        return $this->respondWithSuccess($item . " succesfully created", $statusCode);
+    public function ItemNotFound($item){
+        return $this->setStatusCode(Response::HTTP_NOT_FOUND)
+            ->error(null,  class_basename($item) . " not found");
     }
     
     /**
-     * Returns custom success message for updating existing item
-     * @param type $item
-     * @param type $statusCode
-     * @return type
+     * Generates a Response with a 404 HTTP header and a given message.
+     * @return Response
      */
-    public function successfullyUpdated($item = 'Item', $statusCode = 200){
-        return $this->respondWithSuccess($item . " succesfully updated", $statusCode);
+    public function NotFound($message = 'Resource Not Found'){
+        return $this->setStatusCode(Response::HTTP_NOT_FOUND)
+            ->error(null,  $message);
+    }
+       
+    /**
+     * Generates a Response with a 401 HTTP header and a given message.
+     *
+     * @param string $message
+     * @return Response
+     */
+    public function Unauthorized($message = 'Unauthorized'){
+        return $this->setStatusCode(Response::HTTP_UNAUTHORIZED)
+            ->error(null, $message);
     }
     
-    /**
-     * Returns custom success message for deliting existing item
-     * @param type $item
-     * @param type $statusCode
-     * @return type
-     */
-    public function successfullyDeleted($item = 'Item', $statusCode = 200){
-        return $this->respondWithSuccess($item . " succesfully deleted", $statusCode);
-    }
-
-    /**
-     * Returns array of objects transformed over specific transformer
-     * @param array $array
-     * @param array $headers
-     * @return type
-     */
-    public function respondWithArray(array $array, array $headers = []){
-        $responseData = $this->statusCode > 201 ? ["error" => $array] : ["data" => $array];  
-        $response = \Response::json($responseData, $this->statusCode, $headers);
-
-        $response->header('Content-Type', 'application/json');
-
-        return $response;
-    }
-
-    /**
-     * Returns response with passed error
-     * @param type $message
-     * @param type $errorCode
-     * @return type
-     */
-    private function respondWithError($message, $errorCode){
-        if ($this->statusCode === 200) {
-            trigger_error(
-                "You better have a really good reason for erroring on a 200...",
-                E_USER_WARNING
-            );
-        }
-
-        return $this->respondWithArray([
-            'message' => $message, 
-            'status_code' => $this->statusCode,
-            'errors' => []
-        ]);
-    }
-
     /**
      * Generates a Response with a 403 HTTP header and a given message.
      *
      * @param string $message
      * @return Response
      */
-    public function errorForbidden($message = 'Forbidden'){
-        return $this->setStatusCode(403)
-            ->respondWithError($message, self::CODE_FORBIDDEN);
+    public function Forbidden($message = 'Forbidden'){
+        return $this->setStatusCode(Response::HTTP_FORBIDDEN)
+            ->error(null, $message);
     }
 
     /**
@@ -217,52 +124,141 @@ class ApiResponse {
      * @param string $message
      * @return Response
      */
-    public function errorInternalError($message = 'Internal Error'){
-        return $this->setStatusCode(500)
-            ->respondWithError($message, self::CODE_INTERNAL_ERROR);
-    }
-
-    /**
-     * Generates a Response with a 404 HTTP header and a given message.
-     *
-     * @param string $message
-     * @return Response
-     */
-    public function errorNotFound($message = 'Resource Not Found'){
-        return $this->setStatusCode(404)
-            ->respondWithError($message, self::CODE_NOT_FOUND);
+    public function InternalError($message = 'Internal Error'){
+        return $this->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
+            ->error(null, $message);
     }
     
-    /**
-     * Generates a Response with a 404 HTTP header and a given message.
-     *
-     * @param string $message
-     * @return Response
-     */
-    public function errorItemNotFound($message = 'Resource' ){
-        return $this->setStatusCode(404)
-            ->respondWithError($message . ' not found', self::CODE_NOT_FOUND);
-    }
-
-    /**
-     * Generates a Response with a 401 HTTP header and a given message.
-     *
-     * @param string $message
-     * @return Response
-     */
-    public function errorUnauthorized($message = 'Unauthorized'){
-        return $this->setStatusCode(401)
-            ->respondWithError($message, self::CODE_UNAUTHORIZED);
-    }
-
     /**
      * Generates a Response with a 400 HTTP header and a given message.
      *
      * @param string $message
      * @return Response
      */
-    public function errorWrongArgs($message = 'Wrong Arguments'){
-        return $this->setStatusCode(400)
-            ->respondWithError($message, self::CODE_WRONG_ARGS);
+    public function WrongArgs($message = 'Wrong Arguments'){
+        return $this->setStatusCode(Response::HTTP_BAD_REQUEST)
+            ->error(null, $message);
+    }
+    
+    /**
+     * Returns object transformed over specific transformer
+     * @param type $item
+     * @param type $callback
+     * @return type
+     */
+    public function Item($item, $callback, $message = "Ok", $code = Response::HTTP_OK){
+        $resource = new Item($item, $callback);
+
+        $rootScope = $this->fractal()->createData($resource);
+
+        return $this->setStatusCode($code)->success($rootScope->toArray(), $message);
+    }
+    
+    /**
+     * Returns collection of objects transformed over specific transformer
+     * @param type $collection
+     * @param type $callback
+     * @return type
+     */
+    public function Collection($collection, $callback, $message = "Ok"){
+        $resource = new Collection($collection, $callback);
+
+        $rootScope = $this->fractal()->createData($resource);
+
+        return $this->setStatusCode(Response::HTTP_OK)->success($rootScope->toArray(), $message);
+    }
+    
+    /**
+     * Returns paginate object with a specific number of objects transformed over specific transformer, also provide redirect urls for next or previous page
+     * @param Paginator $paginator
+     * @param type $callback
+     * @return type
+     */
+    public function Pagination(Paginator $paginator, $callback, $message = "Ok"){
+        $queryParams = array_diff_key($_GET, array_flip(['page']));
+        $paginator->appends($queryParams);
+
+        $resource = new Collection($paginator, $callback, "data");
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+
+        $rootScope = $this->fractal()->createData($resource);
+
+        return $this->setStatusCode(Response::HTTP_OK)->success($rootScope->toArray(), $message, true);
+    }
+
+    /**
+     * Returns custom success message and created item
+     * @param type $item
+     * @return type
+     */
+    public function ItemCreated($item, $callback){
+        return $this->Item($item, $callback, class_basename($item) . " succesfully created", Response::HTTP_CREATED);
+    }
+    
+    /**
+     * Returns custom success message and updated item
+     * @param type $item
+     * @return type
+     */
+    public function ItemUpdated($item, $callback){
+        return $this->Item($item, $callback, class_basename($item) . " succesfully updated", Response::HTTP_OK);
+    }
+    
+    /**
+     * Returns custom success message for updated item
+     * @param type $item
+     * @return type
+     */
+    public function ItemDeleted($item){
+        return $this->setStatusCode(Response::HTTP_OK)->success(null, class_basename($item) . " succesfully deleted");
+    }
+    
+    //PRIVATE SCOPE
+    
+    /**
+     * Returns array of objects transformed over specific transformer
+     * @param array $array
+     * @param array $headers
+     * @return type
+     */
+    private function respondWithArray(array $array, array $headers = []){
+        $response = \Response::json($array, $this->statusCode, $headers);
+
+        $response->header('Content-Type', 'application/json');
+
+        return $response;
+    }
+    
+    /**
+     * Returns custom success message otherwise default message
+     * @param type $data
+     * @param type $message
+     * @param type $mergeData
+     * @return type
+     */
+    private function success($data = [], $message = 'Ok', $mergeData = false){
+        $responseData = ['success' => true, 'message' => $message];   
+        $responseData = $mergeData ? array_merge($responseData, $data) : array_add($responseData, 'data', $data);
+        return $this->respondWithArray($responseData);
+    }
+    
+    /**
+     * Returns response with passed error
+     * @param type $errors
+     * @param type $message
+     * @return type
+     */
+    private function error($errors = [], $message = "Something went wrong!"){
+        if ($this->statusCode === 200) {
+            trigger_error(
+                "You better have a really good reason for erroring on a 200...",
+                E_USER_WARNING
+            );
+        }
+        return $this->respondWithArray([
+            'success' => false,
+            'message' => $message,
+            'errors' => $errors
+        ]);
     }
 }

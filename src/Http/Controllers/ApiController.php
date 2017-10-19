@@ -13,10 +13,10 @@ class ApiController extends Controller
         try {
             $user = JWTAuth::parseToken()->toUser();
             if (!$user) {
-                return ApiResponse::errorNotFound(Lang::get('auth.user_not_found'));
+                return ApiResponse::NotFound(Lang::get('auth.user_not_found'));
             }
         } catch (JWTException $e) {
-            return ApiResponse::errorInternalError(Lang::get('status.500'));
+            return ApiResponse::InternalError(Lang::get('status.500'));
         }
         
         return $user;
