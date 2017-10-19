@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace Dinkara\DinkoApi\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
@@ -40,11 +40,13 @@ abstract class ApiRequest extends FormRequest
         
         $errors = (new ValidationException($validator))->errors();
         
-        throw new HttpResponseException(response()->json([
-//            'success' => false,
-            'status_code' => JsonResponse::HTTP_UNPROCESSABLE_ENTITY,
-            'message' => 'The given data was invalid.',            
-            'errors' => $errors
+        throw new HttpResponseException(response()->json([        
+            "error" => 
+                    [
+                        'status_code' => JsonResponse::HTTP_UNPROCESSABLE_ENTITY,
+                        'message' => 'The given data was invalid.',            
+                        'errors' => $errors
+                    ]
         ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY));
     }
 }

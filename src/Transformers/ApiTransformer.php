@@ -42,7 +42,9 @@ abstract class ApiTransformer extends TransformerAbstract{
     
     protected function transformFromModel($item){
         
-        $fillable = $item->getDispalyable();
+        $arr = ['id' => $item->id];
+        
+        $fillable = $item->getDisplayable();
         
         foreach ($fillable as $value) {
             $arr[$value] = eval('return $item->'.$value.';');
