@@ -16,7 +16,7 @@ class DinkoApiServiceProvider extends ServiceProvider
         //$this->loadRoutesFrom(__DIR__."/Routes/api.php");
         //$this->loadMigrationsFrom(__DIR__.'/Migrations');
         $this->publishes([
-            __DIR__.'/Support/Lang/en' => resource_path('lang/en'),
+            dirname(__DIR__).'/Support/Lang/en' => resource_path('lang/en'),
         ]);
     }
 
