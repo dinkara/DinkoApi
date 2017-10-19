@@ -20,6 +20,11 @@ use League\Fractal\Manager;
  *
  * @author Dinkic
  */
+/**
+ * Description of ApiResponse
+ *
+ * @author Dinkic
+ */
 class ApiResponse {
     
     protected $statusCode = 200;
@@ -166,7 +171,8 @@ class ApiResponse {
      * @return type
      */
     public function respondWithArray(array $array, array $headers = []){
-        $response = \Response::json(["data" => $array], $this->statusCode, $headers);
+        $responseData = $this->statusCode > 201 ? ["error" => $array] : ["data" => $array];  
+        $response = \Response::json($responseData, $this->statusCode, $headers);
 
         $response->header('Content-Type', 'application/json');
 
