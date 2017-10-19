@@ -13,8 +13,6 @@ class DinkoApiServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //$this->loadRoutesFrom(__DIR__."/Routes/api.php");
-        //$this->loadMigrationsFrom(__DIR__.'/Migrations');
         $this->publishes([
             dirname(__DIR__).'/Support/Lang/en' => resource_path('lang/en'),
         ]);

@@ -6,17 +6,10 @@
  * and open the template in the editor.
  */
 
-namespace Dinkara\DinkoApi\Support;
+namespace Dinkara\DinkoApi\Traits;
 
-use Illuminate\Database\Eloquent\Model;
-/**
- * Description of ApiModel
- *
- * @author Dinkic
- */
-class ApiModel extends Model{
-    
-    
+trait ApiModel{
+      
     protected $displayable = [];
     
     public function getDisplayable() {

@@ -23,8 +23,6 @@
     "require": {
         "illuminate/support": "~5.1",
         "php" : "~5.6|~7.0",
-        "illuminate/routing": "^5.1",
-        "guzzlehttp/guzzle": "~6",
         "league/fractal": "^0.17.0",
         "dinkara/repobuilder": "^0.2.1",
         "tymon/jwt-auth": "0.5.*"
