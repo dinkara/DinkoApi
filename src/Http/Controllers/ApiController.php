@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Dinkara\DinkoApi\Http\Controllers;
 use Lang;
 
 class ApiController extends Controller

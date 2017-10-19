@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Dinkara\DinkoApi\Http\Controllers;
 
-use App\Repositories\IRepo;
+use Dinkara\RepoBuilder\Repositories\IRepo;
 use ApiResponse;
 
 class ResourceController extends ApiController

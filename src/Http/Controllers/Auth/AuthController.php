@@ -1,17 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace Dinkara\DinkoApi\Http\Controllers\Auth;
 
-use App\Http\Controllers\ApiController;
+use Dinkara\DinkoApi\Http\Controllers\ApiController;
 
-use App\Http\Requests\LoginRequest;
-use App\Http\Requests\SocialLoginRequest;
-use App\Http\Requests\RegisterRequest;
+use Dinkara\DinkoApi\Http\Requests\LoginRequest;
+use Dinkara\DinkoApi\Http\Requests\RegisterRequest;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-//use App\Services\Facebook\Facebook;
 use App\Repositories\User\IUserRepo;
-use App\Transformers\UserTransformer;
 use App\Support\Enum\UserStatus;
 use Lang;
 use ApiResponse;
@@ -44,68 +41,28 @@ class AuthController extends ApiController {
         try {
             // Attempt to verify the credentials and create a token for the user
             if (!$token = JWTAuth::attempt($credentials)) {
-                return ApiResponse::errorUnauthorized(Lang::get('auth.failed'), 401);
+                return ApiResponse::errorUnauthorized( Lang::get('dinkoapi.auth.failed'), 401);
             }
         } catch (JWTException $e) {
             // Something went wrong whilst attempting to encode the token
-            return ApiResponse::errorInternalError(Lang::get('status.500'));
+            return ApiResponse::errorInternalError( Lang::get('dinkoapi.status.500'));
         }
 
         $user = JWTAuth::toUser($token);
 
         if ($user->status == UserStatus::UNCONFIRMED) {
-            return ApiResponse::errorUnauthorized(Lang::get('auth.confirm_email'), 401);
+            return ApiResponse::errorUnauthorized( Lang::get('dinkoapi.auth.confirm_email'), 401);
         }
 
         if ($user->status == UserStatus::BANNED) {
-            return ApiResponse::errorForbidden(Lang::get('auth.banned'), 403);
+            return ApiResponse::errorForbidden( Lang::get('dinkoapi.auth.banned'), 403);
         }
         
         if($user->password_reset){
-            return ApiResponse::errorUnauthorized(Lang::get('passwords.reset_password_requested'), 401);
+            return ApiResponse::errorUnauthorized( Lang::get('dinkoapi.passwords.reset_password_requested'), 401);
         }
 
         return ApiResponse::respondWithArray(compact('token'))->setStatusCode(200);
-    }
-
-    /**
-     * Returns unique user token and creates user if needed
-     * @param SocialLoginRequest $request
-     * @param Facebook $fb
-     * @return type
-     */
-    public function facebookLogin(SocialLoginRequest $request, Facebook $fb)
-    {        
-        $accessToken = $request->get('access_token');
-        
-        $fb->setAccessToken($accessToken);
-
-        try {
-            $response = $fb->get('me', ['fields' => 'name,email,friends,picture.width(4096)']);
-                        
-        } catch (\Exception $e) {
-            return $this->response->error(Lang::get('auth.invalid_access_token'), 401);
-        }        
-        
-        $facebook = ["provider_id" => $response->id];
-        $userFacebook = $this->socialNetworkRepo->findByFacebookID($response->id);
-        
-        if(!$this->userRepo->findByEmail($response->email) && !$userFacebook){
-            $register = ["email" => $response->email];           
-            $profile = ["name" => $response->name];
-            $this->userRepo->register($register, false)->activate()->attachProfile($profile)->attachFacebookAccount($accessToken, $facebook)->createWallet();
-        }
-        if(!$userFacebook)
-            $this->userRepo->attachFacebookAccount($accessToken, $facebook);
-        else{
-            //refresh Facebook access token
-            $profileData['access_token'] = $accessToken;
-            $userFacebook->getModel()->pivot->update($profileData);
-        }
-
-        $token = JWTAuth::fromUser($this->userRepo->getModel());
-        
-        return $this->response->array(compact('token'))->setStatusCode(200);
     }
     
     /**
@@ -115,13 +72,13 @@ class AuthController extends ApiController {
     public function getToken() {
         $oldToken = JWTAuth::getToken();
         if (!$oldToken) {
-            ApiResponse::errorUnauthorized(Lang::get('auth.invalid_token'));
+            ApiResponse::errorUnauthorized( Lang::get('dinkoapi.auth.invalid_token'));
         }
         try {         
             $token = JWTAuth::refresh($oldToken);
             $this->invalidateJWTToken();
         } catch (JWTException $e) {
-            ApiResponse::errorInternalError(Lang::get('status.500'));
+            ApiResponse::errorInternalError( Lang::get('dinkoapi.status.500'));
         }
 
         return ApiResponse::respondWithArray(compact('token'))->setStatusCode(200);
@@ -138,7 +95,7 @@ class AuthController extends ApiController {
 
         $this->userRepo->register($userData);
         
-        return ApiResponse::respondWithSuccess(Lang::get('auth.success_registration'));
+        return ApiResponse::respondWithSuccess( Lang::get('dinkoapi.auth.success_registration'));
     }
     
     /**

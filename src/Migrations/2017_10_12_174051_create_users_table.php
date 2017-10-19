@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use App\Support\Enum\UserStatus;
+use Dinkara\DinkoApi\Support\Enum\UserStatus;
 
 class CreateUsersTable extends Migration
 {
