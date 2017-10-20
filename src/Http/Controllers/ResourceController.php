@@ -3,6 +3,7 @@
 namespace Dinkara\DinkoApi\Http\Controllers;
 
 use Dinkara\RepoBuilder\Repositories\IRepo;
+use Illuminate\Database\QueryException;
 use ApiResponse;
 
 class ResourceController extends ApiController
@@ -22,7 +23,11 @@ class ResourceController extends ApiController
      */
     public function index()
     {   
-        return ApiResponse::Pagination($this->repo->paginateAll(), new $this->transformer);
+        try{
+            return ApiResponse::Pagination($this->repo->paginateAll(), new $this->transformer);
+        } catch (QueryException $e) {
+            return ApiResponse::InternalError($e->getMessage());
+        } 
     }
 
     /**
@@ -43,24 +48,61 @@ class ResourceController extends ApiController
      */
     public function show($id)
     {
-        if($item = $this->repo->find($id)){
-            
-            $arr['id'] = $item->getModel()->id;
+        try {
+            if($item = $this->repo->find($id)){
 
-            $fillable = $this->repo->getModel()->getFillable();
+                $arr['id'] = $item->getModel()->id;
 
-            foreach ($fillable as $value) {
-                $arr[$value] = eval('return $item->getModel()->'.$value.';');
+                $fillable = $this->repo->getModel()->getFillable();
+
+                foreach ($fillable as $value) {
+                    $arr[$value] = eval('return $item->getModel()->'.$value.';');
+                }
+
+                return ApiResponse::Item($item->getModel(), new $this->transformer);
             }
-
-            return ApiResponse::Item($item->getModel(), new $this->transformer);
-        }
-        else{
-            return ApiResponse::ItemNotFound($this->repo->getModel());
-        }
+        } catch (QueryException $e) {
+            return ApiResponse::InternalError($e->getMessage());
+        }    
+        
+        return ApiResponse::ItemNotFound($this->repo->getModel());
         
     }
 
+    
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  $data
+     * @return \Illuminate\Http\Response
+     */
+    public function storeItem($data)
+    {       
+        try {
+            return ApiResponse::ItemCreated($this->repo->create($data)->getModel(), $this->transformer);
+        } catch (QueryException $e) {
+            return ApiResponse::InternalError($e->getMessage());
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  $data
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateItem($data, $id)
+    {
+        try {
+            if( $item = $this->repo->find($id)){
+                return ApiResponse::ItemUpdated($item->update($data)->getModel(), new $this->transformer, class_basename($this->repo->getModel()));
+            }
+        } catch (QueryException $e) {
+            return ApiResponse::InternalError($e->getMessage());
+        }
+        return ApiResponse::ItemNotFound($this->repo->getModel());    
+    }
     /**
      * Show the item for editing it.
      *
@@ -69,12 +111,14 @@ class ResourceController extends ApiController
      */
     public function edit($id)
     {  
-        if($item = $this->repo->find($id)){
-            return ApiResponse::Item($item->getModel(), new $this->transformer);
-        }
-        else{
-            return ApiResponse::ItemNotFound($this->repo->getModel());
-        }
+        try{
+            if($item = $this->repo->find($id)){
+                return ApiResponse::Item($item->getModel(), new $this->transformer);
+            }
+        } catch (QueryException $e) {
+            return ApiResponse::InternalError($e->getMessage());
+        }  
+        return ApiResponse::ItemNotFound($this->repo->getModel());
     }
 
     /**
@@ -85,13 +129,15 @@ class ResourceController extends ApiController
      */
     public function destroy($id)
     {
-        if($item = $this->repo->find($id)){
-            $item->delete($id);
-            return ApiResponse::ItemDeleted($this->repo->getModel());
-        }
-        else{
-            return ApiResponse::ItemNotFound($this->repo->getModel());
-        }
+        try{
+            if($item = $this->repo->find($id)){
+                $item->delete($id);
+                return ApiResponse::ItemDeleted($this->repo->getModel());
+            }
+        } catch (QueryException $e) {
+            return ApiResponse::InternalError($e->getMessage());
+        } 
         
+        return ApiResponse::ItemNotFound($this->repo->getModel());       
     }
 }
