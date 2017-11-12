@@ -141,6 +141,28 @@ class ApiResponse {
     }
     
     /**
+     * Generates a Response with a 200 HTTP header and a given message.
+     *
+     * @param string $message
+     * @return Response
+     */
+    public function SuccessMessage($message = 'Ok'){
+        return $this->setStatusCode(Response::HTTP_OK)
+            ->success(null, $message);
+    }
+    
+    /**
+     * Generates a Response with a 200 HTTP header and a given message.
+     *
+     * @param array $data
+     * @return Response
+     */
+    public function Token($data = null){
+        return $this->setStatusCode(Response::HTTP_OK)
+            ->success($data);
+    }
+    
+    /**
      * Returns object transformed over specific transformer
      * @param type $item
      * @param type $callback
