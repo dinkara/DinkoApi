@@ -24,6 +24,20 @@ class ResourceController extends ApiController
     public function index()
     {   
         try{
+            return ApiResponse::Collection($this->repo->all(), new $this->transformer);
+        } catch (QueryException $e) {
+            return ApiResponse::InternalError($e->getMessage());
+        } 
+    }
+    
+    /**
+     * Display a listing of the item.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function paginate()
+    {   
+        try{
             return ApiResponse::Pagination($this->repo->paginateAll(), new $this->transformer);
         } catch (QueryException $e) {
             return ApiResponse::InternalError($e->getMessage());

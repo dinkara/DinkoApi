@@ -48,6 +48,9 @@ abstract class ApiTransformer extends TransformerAbstract{
         
         foreach ($fillable as $value) {
             $arr[$value] = eval('return $item->'.$value.';');
+            if($arr[$value] == null && $item->pivot != null){
+		$arr[$value] = eval('return $item->pivot->'.$value.';');
+	    }
         }
         return $arr;
     }
