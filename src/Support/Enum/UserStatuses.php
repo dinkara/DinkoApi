@@ -2,7 +2,7 @@
 
 namespace Dinkara\DinkoApi\Support\Enum;
 
-class UserStatus
+class UserStatuses
 {
     const UNCONFIRMED = 'Unconfirmed';
     const ACTIVE = 'Active';    

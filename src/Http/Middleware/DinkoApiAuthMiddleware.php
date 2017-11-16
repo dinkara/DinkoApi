@@ -8,12 +8,12 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Middleware\BaseMiddleware;
 use Illuminate\Support\Facades\Lang;
 use ApiResponse;
-use Dinkara\DinkoApi\Support\Enum\UserStatus;
+use Dinkara\DinkoApi\Support\Enum\UserStatuses;
 
 /**
  * Adapted JWTMiddleware to work with ApiResponse
  */
-class DinkoApiMiddleware extends BaseMiddleware
+class DinkoApiAuthMiddleware extends BaseMiddleware
 {
     /**
      * Handle an incoming request.
@@ -43,11 +43,11 @@ class DinkoApiMiddleware extends BaseMiddleware
             $this->respond('tymon.jwt.user_not_found',  Lang::get('dinkoapi.auth.user_not_found'), 404);
             return ApiResponse::NotFound( Lang::get('dinkoapi.auth.user_not_found'));
         }
-        if ($user->status == UserStatus::UNCONFIRMED) {
+        if ($user->status == UserStatuses::UNCONFIRMED) {
             return ApiResponse::Unauthorized( Lang::get('dinkoapi.auth.confirm_email'), 401);
         }
 
-        if ($user->status == UserStatus::BANNED) {
+        if ($user->status == UserStatuses::BANNED) {
             return ApiResponse::Forbidden( Lang::get('dinkoapi.auth.banned'), 403);
         }
         
