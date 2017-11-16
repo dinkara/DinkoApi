@@ -15,6 +15,7 @@ return [
     'auth' => [
         'token_not_provided' => 'Token not provided!',
         'token_expired' => 'Token has been expired!',
+        'token_blacklisted' => 'Token has been blacklisted!',
         'token_invalid' => 'Invalid token!',
         'failed' => 'These credentials do not match our records.',
         'insufficient_permissions' => 'You do not have sufficient permissions to access this resource',
