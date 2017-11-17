@@ -35,7 +35,7 @@ class DinkoApiOwnerMiddleware
         $user = JWTAuth::parseToken()->toUser();                
         
         if($resource->user && $user && $resource->user->id != $user->id){
-            return ApiResponse::Unauthorized(Lang::get("dinkoapi.middleware.owner_feild"));
+            return ApiResponse::Unauthorized(Lang::get("dinkoapi.middleware.owner_failed"));
         }
         
 	return $next($request);			
