@@ -43,6 +43,10 @@ return [
     
     'status' => [
         '500' => 'Something went wrong!',
+    ],
+    
+    'middleware' => [
+        'owner_failed' => "You don't have permission to change this resource.",
     ]
 
 ];
