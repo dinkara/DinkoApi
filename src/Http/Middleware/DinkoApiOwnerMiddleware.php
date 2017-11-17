@@ -30,12 +30,14 @@ class DinkoApiOwnerMiddleware
     {                                
         $this->repo->find($request->id);
         
-        $user = JWTAuth::parseToken()->toUser();
+        $resource = $this->repo->getModel();
         
-        if($this->repo->getModel()->user->id != $user->id){
+        $user = JWTAuth::parseToken()->toUser();                
+        
+        if($resource->user && $user && $resource->user->id != $user->id){
             return ApiResponse::Unauthorized(Lang::get("dinkoapi.middleware.owner_feild"));
         }
         
-	return parent::handle($request, $next);			
+	return $next($request);			
     }
 }
