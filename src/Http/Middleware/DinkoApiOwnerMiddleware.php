@@ -3,6 +3,7 @@
 namespace Dinkara\DinkoApi\Http\Middleware;
 
 use Dinkara\RepoBuilder\Repositories\IRepo;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Closure;
 use ApiResponse;
 use Lang;
