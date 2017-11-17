@@ -9,7 +9,6 @@ use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Tymon\JWTAuth\Middleware\BaseMiddleware;
 use Illuminate\Support\Facades\Lang;
 use ApiResponse;
-use Dinkara\DinkoApi\Support\Enum\UserStatuses;
 
 /**
  * Adapted JWTMiddleware to work with ApiResponse
@@ -46,18 +45,6 @@ class DinkoApiAuthMiddleware extends BaseMiddleware
             $this->respond('tymon.jwt.user_not_found',  Lang::get('dinkoapi.auth.user_not_found'), 404);
             return ApiResponse::NotFound( Lang::get('dinkoapi.auth.user_not_found'));
         }
-        if ($user->status == UserStatuses::UNCONFIRMED) {
-            return ApiResponse::Unauthorized( Lang::get('dinkoapi.auth.confirm_email'), 401);
-        }
-
-        if ($user->status == UserStatuses::BANNED) {
-            return ApiResponse::Forbidden( Lang::get('dinkoapi.auth.banned'), 403);
-        }
-        
-        if($user->password_reset){
-            return ApiResponse::Unauthorized( Lang::get('dinkoapi.passwords.reset_password_requested'), 401);
-        }
-
         $this->events->fire('tymon.jwt.valid', $user);
 
         return $next($request);
