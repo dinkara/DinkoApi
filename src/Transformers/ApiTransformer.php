@@ -46,7 +46,7 @@ abstract class ApiTransformer extends TransformerAbstract{
         
         $displayable = $item->getDisplayable();
         
-	if($pivot){	    
+	if($pivot && $item->pivot){	    
 	    $displayable = array_merge($displayable, array_intersect($pivot, array_keys($item->pivot->getAttributes())));	    
 	}
 	
