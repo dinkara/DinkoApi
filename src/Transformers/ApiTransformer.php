@@ -40,18 +40,28 @@ abstract class ApiTransformer extends TransformerAbstract{
         return new Collection($data, $transformer, $resourceKey);
     }     
     
-    protected function transformFromModel($item){
+        protected function transformFromModel($item, $pivot = []){
         
         $arr = ['id' => $item->id];
         
-        $fillable = $item->getDisplayable();
+        $displayable = $item->getDisplayable();
         
-        foreach ($fillable as $value) {
-            $arr[$value] = eval('return $item->'.$value.';');
-            if($arr[$value] == null && $item->pivot != null){
-		$arr[$value] = eval('return $item->pivot->'.$value.';');
+	if($pivot){	    
+	    $displayable = array_merge($displayable, array_intersect($pivot, array_keys($item->pivot->getAttributes())));	    
+	}
+	
+        foreach ($displayable as $value) {
+	    $result = eval('return $item->'.$value.';');
+            	    
+            if($result == null && $item->pivot != null){
+		$arr["pivot"][$value] = eval('return $item->pivot->'.$value.';');;
+		
+	    }
+	    else{
+		$arr[$value] = $result;
 	    }
         }
+	
         return $arr;
     }
     
