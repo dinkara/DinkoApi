@@ -17,6 +17,22 @@ class ResourceController extends ApiController
         $this->transformer = $transformer;
     }
     
+	/**
+     * Get all items
+     * 
+     * Display a listing of the item.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {   
+        try{
+            return ApiResponse::Collection($this->repo->all(), new $this->transformer);
+        } catch (QueryException $e) {
+            return ApiResponse::InternalError($e->getMessage());
+        } 
+    }
+	
     /**
      * Paginated items
      * 
