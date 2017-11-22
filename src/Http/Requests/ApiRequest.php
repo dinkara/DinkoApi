@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use ApiResponse;
 
 abstract class ApiRequest extends FormRequest
 {     
@@ -40,13 +41,6 @@ abstract class ApiRequest extends FormRequest
         
         $errors = (new ValidationException($validator))->errors();
         
-        throw new HttpResponseException(response()->json([        
-            "error" => 
-                    [
-                        'status_code' => JsonResponse::HTTP_UNPROCESSABLE_ENTITY,
-                        'message' => 'The given data was invalid.',            
-                        'errors' => $errors
-                    ]
-        ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY));
+        throw new HttpResponseException(ApiResponse::UnprocessableEntity($errors));
     }
 }
