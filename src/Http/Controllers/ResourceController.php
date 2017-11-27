@@ -4,6 +4,7 @@ namespace Dinkara\DinkoApi\Http\Controllers;
 
 use Dinkara\RepoBuilder\Repositories\IRepo;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
 use ApiResponse;
 
 class ResourceController extends ApiController
@@ -17,38 +18,46 @@ class ResourceController extends ApiController
         $this->transformer = $transformer;
     }
     
-	/**
+
+    /**
      * Get all items
      * 
      * Display a listing of the item.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return type
      */
-    public function index()
+    public function index(Request $request)
     {   
         try{
-            return ApiResponse::Collection($this->repo->all(), new $this->transformer);
-        } catch (QueryException $e) {
-            return ApiResponse::InternalError($e->getMessage());
-        } 
-    }
-	
-    /**
-     * Paginated items
-     * 
-     * Display a list of paginated items .
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function paginate()
-    {   
-        try{
-            return ApiResponse::Pagination($this->repo->paginateAll(), new $this->transformer);
+            return ApiResponse::Collection($this->repo->search($request->q, $request->orderBy), new $this->transformer);
         } catch (QueryException $e) {
             return ApiResponse::InternalError($e->getMessage());
         } 
     }
 
+    /**
+     * Paginated items
+     * 
+     * Display a list of paginated items .
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function paginate(Request $request)
+    {   
+        try{            
+            if($pagination = $request->pagination){
+                return ApiResponse::Pagination($this->repo->searchAndPaginate($request->q, $request->orderBy, $pagination), new $this->transformer);
+            }
+            else{
+                return ApiResponse::Pagination($this->repo->searchAndPaginate($request->q, $request->orderBy), new $this->transformer);
+            }
+            
+        } catch (QueryException $e) {
+            return ApiResponse::InternalError($e->getMessage());
+        } 
+    }
     /**
      * Get Single Item
      * 
