@@ -218,6 +218,15 @@ class ApiResponse {
     }
     
     /**
+     * Returns custom success message and attach item
+     * @param type $item
+     * @return type
+     */
+    public function ItemAttached($item, $callback){
+        return $this->Item($item, $callback,  "Item successfully attached to " . class_basename($item), Response::HTTP_CREATED);
+    }
+    
+    /**
      * Returns custom success message and updated item
      * @param type $item
      * @return type
@@ -227,12 +236,21 @@ class ApiResponse {
     }
     
     /**
-     * Returns custom success message for updated item
+     * Returns custom success message for deleted item
      * @param type $item
      * @return type
      */
     public function ItemDeleted($item){
         return $this->setStatusCode(Response::HTTP_OK)->success(null, class_basename($item) . " succesfully deleted");
+    }
+    
+    /**
+     * Returns custom success message for detached item
+     * @param type $item
+     * @return type
+     */
+    public function ItemDetached($item){
+        return $this->setStatusCode(Response::HTTP_OK)->success(null, "Item succesfully deleted from " . class_basename($item));
     }
     
     //PRIVATE SCOPE
