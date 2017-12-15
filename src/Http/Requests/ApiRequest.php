@@ -40,7 +40,7 @@ abstract class ApiRequest extends FormRequest
     {
         
         if(method_exists($validator, 'errors')){
-            $errors = (new ValidationException($validator->errors()));
+            $errors = (new ValidationException($validator->errors()))->validator;
         }else{
             $errors = (new ValidationException($validator))->errors();
         }
