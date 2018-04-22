@@ -46,6 +46,7 @@ return [
     ],
 
     'response_message' => [
+        'ok' => 'Ok',
         'not_found' => ' not found',
         'resource_not_found' => 'Resource Not Found',
         'unauthorized' => 'Unauthorized',
