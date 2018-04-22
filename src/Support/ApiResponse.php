@@ -16,6 +16,7 @@ use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Manager;
 use Symfony\Component\HttpFoundation\Response;
+use Lang;
 /**
  * Description of ApiResponse
  *
@@ -82,16 +83,20 @@ class ApiResponse {
      * @param type $item
      * @return Response
      */
-    public function ItemNotFound($item){
+    public function ItemNotFound($item, $message = null){
+        $message = $message ? $message : class_basename($item) . Lang::get('dinkoapi.response_message.not_found');
         return $this->setStatusCode(Response::HTTP_NOT_FOUND)
-            ->error(null,  class_basename($item) . " not found");
+            ->error(null,  $message);
     }
-    
+
     /**
      * Generates a Response with a 404 HTTP header and a given message.
-     * @return Response
+     *
+     * @param string $message
+     * @return type
      */
-    public function NotFound($message = 'Resource Not Found'){
+    public function NotFound($message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.resource_not_found');
         return $this->setStatusCode(Response::HTTP_NOT_FOUND)
             ->error(null,  $message);
     }
@@ -102,7 +107,8 @@ class ApiResponse {
      * @param string $message
      * @return Response
      */
-    public function Unauthorized($message = 'Unauthorized'){
+    public function Unauthorized($message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.unauthorized');
         return $this->setStatusCode(Response::HTTP_UNAUTHORIZED)
             ->error(null, $message);
     }
@@ -113,7 +119,8 @@ class ApiResponse {
      * @param string $message
      * @return Response
      */
-    public function Forbidden($message = 'Forbidden'){
+    public function Forbidden($message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.forbidden');
         return $this->setStatusCode(Response::HTTP_FORBIDDEN)
             ->error(null, $message);
     }
@@ -124,7 +131,8 @@ class ApiResponse {
      * @param string $message
      * @return Response
      */
-    public function InternalError($message = 'Internal Error'){
+    public function InternalError($message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.internal_error');
         return $this->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
             ->error(null, $message);
     }
@@ -135,7 +143,8 @@ class ApiResponse {
      * @param string $message
      * @return Response
      */
-    public function WrongArgs($message = 'Wrong Arguments'){
+    public function WrongArgs($message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.wrong_arguments');
         return $this->setStatusCode(Response::HTTP_BAD_REQUEST)
             ->error(null, $message);
     }
@@ -146,7 +155,8 @@ class ApiResponse {
      * @param string $message
      * @return Response
      */
-    public function SuccessMessage($message = 'Ok'){
+    public function SuccessMessage($message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.ok');
         return $this->setStatusCode(Response::HTTP_OK)
             ->success(null, $message);
     }
@@ -161,33 +171,42 @@ class ApiResponse {
         return $this->setStatusCode(Response::HTTP_OK)
             ->success($data);
     }
-    
+
     /**
      * Returns object transformed over specific transformer
-     * @param type $item
-     * @param type $callback
+     *
+     * @param $item
+     * @param $callback
+     * @param string $message
+     * @param int $code
      * @return type
      */
-    public function Item($item, $callback, $message = "Ok", $code = Response::HTTP_OK){
+    public function Item($item, $callback, $message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.ok');
+
         $resource = new Item($item, $callback);
 
         $rootScope = $this->fractal()->createData($resource);
 
-        return $this->setStatusCode($code)->success($rootScope->toArray(), $message);
+        return $this->setStatusCode(Response::HTTP_OK)->success($rootScope->toArray(), $message);
     }
-    
+
     /**
      * Returns collection of objects transformed over specific transformer
-     * @param type $collection
-     * @param type $callback
+     *
+     * @param $collection
+     * @param $callback
+     * @param string $message
      * @return type
      */
-    public function Collection($collection, $callback, $message = "Ok"){
+    public function Collection($collection, $callback, $message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.ok');
+
         $resource = new Collection($collection, $callback);
 
         $rootScope = $this->fractal()->createData($resource);
 
-        return $this->setStatusCode(Response::HTTP_OK)->success($rootScope->toArray(), $message);
+        return $this->setStatusCode(Response::HTTP_OK)->success($rootScope->toArray() ? $rootScope->toArray() : [], $message);
     }
     
     /**
@@ -196,7 +215,8 @@ class ApiResponse {
      * @param type $callback
      * @return type
      */
-    public function Pagination(Paginator $paginator, $callback, $message = "Ok"){
+    public function Pagination(Paginator $paginator, $callback, $message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.ok');
         $queryParams = array_diff_key($_GET, array_flip(['page']));
         $paginator->appends($queryParams);
 
@@ -205,7 +225,12 @@ class ApiResponse {
 
         $rootScope = $this->fractal()->createData($resource);
 
-        return $this->setStatusCode(Response::HTTP_OK)->success($rootScope->toArray(), $message, true);
+        $response = $rootScope->toArray();
+
+        if(!array_key_exists('data', $response)){
+            $response['data'] = [];
+        }
+        return $this->setStatusCode(Response::HTTP_OK)->success($response, $message, true);
     }
 
     /**
@@ -213,8 +238,9 @@ class ApiResponse {
      * @param type $item
      * @return type
      */
-    public function ItemCreated($item, $callback){
-        return $this->Item($item, $callback, class_basename($item) . " succesfully created", Response::HTTP_CREATED);
+    public function ItemCreated($item, $callback, $message = null){
+        $message = $message ? $message :  class_basename($item) . Lang::get('dinkoapi.response_message.succesfully_created');
+        return $this->Item($item, $callback, $message, Response::HTTP_CREATED);
     }
     
     /**
@@ -222,8 +248,9 @@ class ApiResponse {
      * @param type $item
      * @return type
      */
-    public function ItemAttached($item, $callback){
-        return $this->Item($item, $callback,  "Item successfully attached to " . class_basename($item), Response::HTTP_CREATED);
+    public function ItemAttached($item, $callback, $message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.successfully_attached') . class_basename($item);
+        return $this->Item($item, $callback,  $message, Response::HTTP_CREATED);
     }
     
     /**
@@ -231,8 +258,9 @@ class ApiResponse {
      * @param type $item
      * @return type
      */
-    public function ItemUpdated($item, $callback){
-        return $this->Item($item, $callback, class_basename($item) . " succesfully updated", Response::HTTP_OK);
+    public function ItemUpdated($item, $callback, $message = null){
+        $message = $message ? $message :  class_basename($item) . Lang::get('dinkoapi.response_message.succesfully_updated');
+        return $this->Item($item, $callback, $message, Response::HTTP_OK);
     }
     
     /**
@@ -240,8 +268,9 @@ class ApiResponse {
      * @param type $item
      * @return type
      */
-    public function ItemDeleted($item){
-        return $this->setStatusCode(Response::HTTP_OK)->success(null, class_basename($item) . " succesfully deleted");
+    public function ItemDeleted($item, $message = null){
+        $message = $message ? $message :  class_basename($item) . Lang::get('dinkoapi.response_message.succesfully_deleted');
+        return $this->setStatusCode(Response::HTTP_OK)->success(null, $message);
     }
     
     /**
@@ -249,8 +278,9 @@ class ApiResponse {
      * @param type $item
      * @return type
      */
-    public function ItemDetached($item){
-        return $this->setStatusCode(Response::HTTP_OK)->success(null, "Item succesfully deleted from " . class_basename($item));
+    public function ItemDetached($item, $message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.successfully_detached') . class_basename($item);
+        return $this->setStatusCode(Response::HTTP_OK)->success(null, $message);
     }
     
     //PRIVATE SCOPE
@@ -276,7 +306,8 @@ class ApiResponse {
      * @param type $mergeData
      * @return type
      */
-    private function success($data = [], $message = 'Ok', $mergeData = false){
+    private function success($data = [], $message = null, $mergeData = false){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.ok');
         $responseData = ['success' => true, 'message' => $message];   
         $responseData = $mergeData ? array_merge($responseData, $data) : array_add($responseData, 'data', $data);
         return $this->respondWithArray($responseData);
@@ -288,10 +319,11 @@ class ApiResponse {
      * @param type $message
      * @return type
      */
-    private function error($errors = [], $message = "Something went wrong!"){
+    private function error($errors = [], $message = null){
+        $message = $message ? $message :  Lang::get('dinkoapi.response_message.something_went_wrong');
         if ($this->statusCode === 200) {
             trigger_error(
-                "You better have a really good reason for erroring on a 200...",
+                Lang::get('dinkoapi.response_message.erroring_200'),
                 E_USER_WARNING
             );
         }

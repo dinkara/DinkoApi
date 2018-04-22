@@ -44,6 +44,25 @@ return [
     'status' => [
         '500' => 'Something went wrong!',
     ],
+
+    'response_message' => [
+        'not_found' => ' not found',
+        'resource_not_found' => 'Resource Not Found',
+        'unauthorized' => 'Unauthorized',
+        'forbidden' => 'Forbidden',
+        'internal_error' => 'Internal Error',
+        'wrong_arguments' => 'Wrong Arguments',
+        'succesfully_created' => ' succesfully created',
+        'successfully_attached' => 'Item successfully attached to ',
+        'succesfully_updated' => ' succesfully updated',
+        'succesfully_deleted' => ' succesfully deleted',
+        'successfully_detached' => 'Item succesfully deleted from ',
+        'something_went_wrong!' => 'Something went wrong!',
+        'erroring_200' => 'You better have a really good reason for erroring on a 200...',
+
+
+    ],
+
     
     'middleware' => [
         'owner_failed' => "You don't have permission to change this resource.",
