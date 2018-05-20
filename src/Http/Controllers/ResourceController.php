@@ -120,7 +120,7 @@ class ResourceController extends ApiController
     {
         try {
             if( $item = $this->repo->find($id)){
-                return ApiResponse::ItemUpdated($item->update($data)->getModel(), new $this->transformer, class_basename($this->repo->getModel()));
+                return ApiResponse::ItemUpdated($item->update($data)->getModel(), new $this->transformer);
             }
         } catch (QueryException $e) {
             return ApiResponse::InternalError($e->getMessage());
