@@ -20,7 +20,7 @@ class ResourceController extends ApiController
     
 
     /**
-     * Get all items
+     * Get paginated items, included advanced REST querying
      * 
      * Display a listing of the item.
      *
@@ -28,36 +28,14 @@ class ResourceController extends ApiController
      * @return type
      */
     public function index(Request $request)
-    {   
+    {
         try{
-            return ApiResponse::Collection($this->repo->search($request->q, $request->orderBy), new $this->transformer);
+            return ApiResponse::Pagination( $this->repo->restSearch($request), new $this->transformer );
         } catch (QueryException $e) {
             return ApiResponse::InternalError($e->getMessage());
-        } 
+        }
     }
 
-    /**
-     * Paginated items
-     * 
-     * Display a list of paginated items .
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function paginate(Request $request)
-    {   
-        try{            
-            if($pagination = $request->pagination){
-                return ApiResponse::Pagination($this->repo->searchAndPaginate($request->q, $request->orderBy, $pagination), new $this->transformer);
-            }
-            else{
-                return ApiResponse::Pagination($this->repo->searchAndPaginate($request->q, $request->orderBy), new $this->transformer);
-            }
-            
-        } catch (QueryException $e) {
-            return ApiResponse::InternalError($e->getMessage());
-        } 
-    }
     /**
      * Get Single Item
      * 
