@@ -21,8 +21,8 @@
         }
     ],
     "require": {
-        "illuminate/support": "~5.7.0|~5.8.0|^6.0|^7.0",
-        "php" : "~5.6|~7.0|~7.2",
+        "illuminate/support": "^6.16",
+        "php" : "~7.2",
         "league/fractal": "^0.17.0",
         "dinkara/repobuilder": "1.*",
         "tymon/jwt-auth": "0.5.*"
